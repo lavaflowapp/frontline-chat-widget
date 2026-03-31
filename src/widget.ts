@@ -187,7 +187,7 @@ async function loadSession(name: string, phone: string) {
     hideTyping();
 
     if (session.messages.length === 0) {
-      appendAgentMessage('Hi! How can I help you today?');
+      appendAgentMessage('Hey there! Looking for your next Ford? I\u2019m Miles \u2014 what can I help you find today?');
     } else {
       session.messages.forEach((msg: SessionMessage) => {
         if (msg.direction === 'inbound') {
