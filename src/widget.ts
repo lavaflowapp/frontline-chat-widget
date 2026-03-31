@@ -292,12 +292,18 @@ function autoInit() {
     currentScript ||
     document.querySelector('script[data-client-id]');
 
-  if (!script) return;
+  if (!script) {
+    console.warn('[FrontlineWidget] No script tag found with data-client-id');
+    return;
+  }
 
   const clientId = script.getAttribute('data-client-id');
   const apiUrl = script.getAttribute('data-api-url');
 
-  if (!clientId || !apiUrl) return;
+  if (!clientId || !apiUrl) {
+    console.warn('[FrontlineWidget] Missing required attributes: data-client-id and data-api-url');
+    return;
+  }
 
   const dealerName = script.getAttribute('data-dealer-name') || undefined;
 
