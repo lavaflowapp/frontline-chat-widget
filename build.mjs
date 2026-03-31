@@ -1,4 +1,5 @@
 import * as esbuild from 'esbuild';
+import { copyFileSync } from 'fs';
 
 const watch = process.argv.includes('--watch');
 
@@ -21,3 +22,6 @@ if (watch) {
 } else {
   await esbuild.build(buildOptions);
 }
+
+// Copy static pages into dist so they get deployed to GitHub Pages
+copyFileSync('demo.html', 'dist/demo.html');
