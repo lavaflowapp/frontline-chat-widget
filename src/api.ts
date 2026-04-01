@@ -18,17 +18,17 @@ export interface ChatResponse {
 export async function initSession(
   apiUrl: string,
   clientId: string,
-  phone: string,
-  name: string
+  phone = '',
+  name = ''
 ): Promise<SessionResponse> {
+  const payload: Record<string, string> = { client_id: clientId };
+  if (phone) payload.caller_phone = phone;
+  if (name) payload.caller_name = name;
+
   const res = await fetch(`${apiUrl}/api/bdc/chat/session`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      client_id: clientId,
-      caller_phone: phone,
-      caller_name: name,
-    }),
+    body: JSON.stringify(payload),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: 'Request failed' }));
@@ -40,19 +40,18 @@ export async function initSession(
 export async function sendMessage(
   apiUrl: string,
   clientId: string,
-  phone: string,
   message: string,
-  name: string
+  phone = '',
+  name = ''
 ): Promise<ChatResponse> {
+  const payload: Record<string, string> = { client_id: clientId, message };
+  if (phone) payload.caller_phone = phone;
+  if (name) payload.caller_name = name;
+
   const res = await fetch(`${apiUrl}/api/bdc/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      client_id: clientId,
-      caller_phone: phone,
-      message,
-      caller_name: name,
-    }),
+    body: JSON.stringify(payload),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: 'Request failed' }));

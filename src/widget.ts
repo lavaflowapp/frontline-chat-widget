@@ -1,5 +1,5 @@
 import { STYLES } from './styles';
-import { getVisitorData, setVisitorData, getConversationId, setConversationId } from './storage';
+import { getConversationId, setConversationId } from './storage';
 import { initSession, sendMessage, SessionMessage } from './api';
 
 interface WidgetConfig {
@@ -18,7 +18,7 @@ const CLOSE_ICON = `&#x2715;`;
 
 // ── State ──
 
-type WidgetState = 'closed' | 'prechat' | 'open';
+type WidgetState = 'closed' | 'open';
 
 let state: WidgetState = 'closed';
 let config: WidgetConfig | null = null;
@@ -76,19 +76,6 @@ function renderPanel() {
       </div>
       <button id="fa-close">${CLOSE_ICON}</button>
     </div>
-    <div id="fa-prechat">
-      <h3>Start a conversation</h3>
-      <p>Enter your info so we can help you.</p>
-      <div class="fa-field">
-        <label for="fa-name-input">Name</label>
-        <input id="fa-name-input" type="text" placeholder="Your name" />
-      </div>
-      <div class="fa-field">
-        <label for="fa-phone-input">Phone</label>
-        <input id="fa-phone-input" type="tel" placeholder="(555) 555-1234" />
-      </div>
-      <button id="fa-start">Start Chat</button>
-    </div>
     <div id="fa-messages"></div>
     <div id="fa-input-area">
       <input id="fa-input" type="text" placeholder="Type a message..." />
@@ -103,13 +90,8 @@ function renderPanel() {
   inputEl = shadow!.getElementById('fa-input') as HTMLInputElement;
   sendBtn = shadow!.getElementById('fa-send') as HTMLButtonElement;
 
-  // Hide chat UI initially (prechat is visible first)
-  messagesEl.style.display = 'none';
-  (shadow!.getElementById('fa-input-area') as HTMLElement).style.display = 'none';
-
   // Event listeners
   shadow!.getElementById('fa-close')!.addEventListener('click', closePanel);
-  shadow!.getElementById('fa-start')!.addEventListener('click', handlePrechatSubmit);
   sendBtn.addEventListener('click', handleSend);
   inputEl.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -130,13 +112,8 @@ function togglePanel() {
 }
 
 function openPanel() {
-  const visitor = getVisitorData(config!.clientId);
-  if (visitor) {
-    showChatUI();
-    loadSession(visitor.name, visitor.phone);
-  } else {
-    showPrechatUI();
-  }
+  showChatUI();
+  loadSession();
   panelEl.classList.add('open');
 }
 
@@ -145,44 +122,21 @@ function closePanel() {
   state = 'closed';
 }
 
-function showPrechatUI() {
-  state = 'prechat';
-  (shadow!.getElementById('fa-prechat') as HTMLElement).style.display = 'flex';
-  messagesEl.style.display = 'none';
-  (shadow!.getElementById('fa-input-area') as HTMLElement).style.display = 'none';
-}
-
 function showChatUI() {
   state = 'open';
-  (shadow!.getElementById('fa-prechat') as HTMLElement).style.display = 'none';
   messagesEl.style.display = 'flex';
   (shadow!.getElementById('fa-input-area') as HTMLElement).style.display = 'flex';
   inputEl.focus();
 }
 
-// ── Pre-chat ──
-
-function handlePrechatSubmit() {
-  const nameInput = shadow!.getElementById('fa-name-input') as HTMLInputElement;
-  const phoneInput = shadow!.getElementById('fa-phone-input') as HTMLInputElement;
-  const name = nameInput.value.trim();
-  const phone = phoneInput.value.trim();
-
-  if (!name || !phone) return;
-
-  setVisitorData(config!.clientId, name, phone);
-  showChatUI();
-  loadSession(name, phone);
-}
-
 // ── Session ──
 
-async function loadSession(name: string, phone: string) {
+async function loadSession() {
   messagesEl.innerHTML = '';
   showTyping();
 
   try {
-    const session = await initSession(config!.apiUrl, config!.clientId, phone, name);
+    const session = await initSession(config!.apiUrl, config!.clientId);
     setConversationId(config!.clientId, session.conversation_id);
     hideTyping();
 
@@ -212,9 +166,6 @@ async function handleSend() {
   const text = inputEl.value.trim();
   if (!text) return;
 
-  const visitor = getVisitorData(config!.clientId);
-  if (!visitor) return;
-
   inputEl.value = '';
   appendUserMessage(text);
   scrollToBottom();
@@ -224,7 +175,7 @@ async function handleSend() {
   showTyping();
 
   try {
-    const res = await sendMessage(config!.apiUrl, config!.clientId, visitor.phone, text, visitor.name);
+    const res = await sendMessage(config!.apiUrl, config!.clientId, text);
     setConversationId(config!.clientId, res.conversation_id);
     hideTyping();
     appendAgentMessage(res.reply);
