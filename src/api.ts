@@ -41,10 +41,12 @@ export async function sendMessage(
   apiUrl: string,
   clientId: string,
   message: string,
+  conversationId = '',
   phone = '',
   name = ''
 ): Promise<ChatResponse> {
   const payload: Record<string, string> = { client_id: clientId, message };
+  if (conversationId) payload.conversation_id = conversationId;
   if (phone) payload.caller_phone = phone;
   if (name) payload.caller_name = name;
 

@@ -176,7 +176,8 @@ async function handleSend() {
   showTyping();
 
   try {
-    const res = await sendMessage(config!.apiUrl, config!.clientId, text);
+    const convId = getConversationId(config!.clientId) || '';
+    const res = await sendMessage(config!.apiUrl, config!.clientId, text, convId);
     setConversationId(config!.clientId, res.conversation_id);
     hideTyping();
     appendAgentMessage(res.reply);
