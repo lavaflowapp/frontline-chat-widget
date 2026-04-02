@@ -77,6 +77,7 @@ function renderPanel() {
       <button id="fa-close">${CLOSE_ICON}</button>
     </div>
     <div id="fa-messages"></div>
+    <div id="fa-sms-consent">By chatting, you may receive SMS follow-up messages. Reply STOP to opt out.</div>
     <div id="fa-input-area">
       <input id="fa-input" type="text" placeholder="Type a message..." />
       <button id="fa-send">${SEND_ICON}</button>

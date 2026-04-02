@@ -170,6 +170,16 @@ export const STYLES = `
     40% { transform: scale(1); }
   }
 
+  /* ── SMS Consent ── */
+  #fa-sms-consent {
+    font-size: 11px;
+    color: #999;
+    text-align: center;
+    padding: 6px 16px 0;
+    line-height: 1.4;
+    flex-shrink: 0;
+  }
+
   /* ── Input ── */
   #fa-input-area {
     display: flex;
